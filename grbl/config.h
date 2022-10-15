@@ -675,6 +675,12 @@
 // #define DUAL_AXIS_CONFIG_CNC_SHIELD_CLONE  // Uncomment to select. Comment other configs.
 
 
+// JOG inputs are machine steps and not distance. This always affects the MACHINE position
+// in a relative way, that is, the input is the number of STEPS to move each axis FROM
+// THE CURRENT POSITION.
+#define JOG_WITH_PULSES
+
+
 /* ---------------------------------------------------------------------------------------
    OEM Single File Configuration Option
 

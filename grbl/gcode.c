@@ -591,10 +591,25 @@ uint8_t gc_execute_line(char *line)
               // NOTE: G53 is never active with G28/30 since they are in the same modal group.
               if (gc_block.non_modal_command != NON_MODAL_ABSOLUTE_OVERRIDE) {
                 // Apply coordinate offsets based on distance mode.
-                if (gc_block.modal.distance == DISTANCE_MODE_ABSOLUTE) {
+                if (gc_block.modal.distance == DISTANCE_MODE_ABSOLUTE 
+#ifdef JOG_WITH_PULSES
+                      // In jog with pulses mode the input is ALWAYS relative distance.
+                     && (gc_parser_flags & GC_PARSER_JOG_MOTION) == false
+#endif
+                   )
+                {
                   gc_block.values.xyz[idx] += block_coord_system[idx] + gc_state.coord_offset[idx];
                   if (idx == TOOL_LENGTH_OFFSET_AXIS) { gc_block.values.xyz[idx] += gc_state.tool_length_offset; }
-                } else {  // Incremental mode
+                }
+                else
+                {
+#ifdef JOG_WITH_PULSES
+                  if(gc_parser_flags & GC_PARSER_JOG_MOTION)
+                  {
+                    gc_block.modal.distance = DISTANCE_MODE_INCREMENTAL;
+                  }
+#endif
+                    // Incremental mode
                   gc_block.values.xyz[idx] += gc_state.position[idx];
                 }
               }

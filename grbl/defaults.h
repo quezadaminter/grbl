@@ -16,7 +16,7 @@
 
   You should have received a copy of the GNU General Public License
   along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
-*/
+*/ 
 
 /* The defaults.h file serves as a central default settings selector for different machine
    types, from DIY CNC mills to CNC conversions of off-the-shelf machines. The settings
@@ -63,6 +63,8 @@
   #define DEFAULT_HOMING_SEEK_RATE 500.0 // mm/min
   #define DEFAULT_HOMING_DEBOUNCE_DELAY 250 // msec (0-65k)
   #define DEFAULT_HOMING_PULLOFF 1.0 // mm
+
+  #define DEFAULT_MIN_X_DT_US ((uint16_t)((1.0 / ((DEFAULT_X_STEPS_PER_MM * DEFAULT_X_MAX_RATE) / 60.0)) * 1000000))
 #endif
 
 #ifdef DEFAULTS_SHERLINE_5400
