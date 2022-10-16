@@ -390,8 +390,17 @@ uint8_t gc_execute_line(char *line)
   //   is not defined after switching to G94 from G93.
   // NOTE: For jogging, ignore prior feed rate mode. Enforce G94 and check for required F word.
   if (gc_parser_flags & GC_PARSER_JOG_MOTION) {
-    if (bit_isfalse(value_words,bit(WORD_F))) { FAIL(STATUS_GCODE_UNDEFINED_FEED_RATE); }
-    if (gc_block.modal.units == UNITS_MODE_INCHES) { gc_block.values.f *= MM_PER_INCH; }
+    // The jog with step inputs does not need a feed rate but we add a fake valye to make
+    // the rest of the parser happy without having to make more code changes to the parser.
+    if(line[1] == 'J')
+    {
+       if (bit_isfalse(value_words,bit(WORD_F))) { FAIL(STATUS_GCODE_UNDEFINED_FEED_RATE); }
+       if (gc_block.modal.units == UNITS_MODE_INCHES) { gc_block.values.f *= MM_PER_INCH; }
+    }
+    else
+    {
+       gc_block.values.f = 1.0;
+    }
   } else {
     if (gc_block.modal.feed_rate == FEED_RATE_MODE_INVERSE_TIME) { // = G93
       // NOTE: G38 can also operate in inverse time, but is undefined as an error. Missing F word check added here.
@@ -842,8 +851,11 @@ uint8_t gc_execute_line(char *line)
   // [0. Non-specific error-checks]: Complete unused value words check, i.e. IJK used when in arc
   // radius mode, or axis words that aren't used in the block.
   if (gc_parser_flags & GC_PARSER_JOG_MOTION) {
-    // Jogging only uses the F feed rate and XYZ value words. N is valid, but S and T are invalid.
-    bit_false(value_words,(bit(WORD_N)|bit(WORD_F)));
+    // Jogging (with $J) only uses the F feed rate and XYZ value words. N is valid, but S and T are invalid.
+    if(line[1] != 'Q')
+    {
+      bit_false(value_words,(bit(WORD_N)|bit(WORD_F)));
+    }
   } else {
     bit_false(value_words,(bit(WORD_N)|bit(WORD_F)|bit(WORD_S)|bit(WORD_T))); // Remove single-meaning value words.
   }

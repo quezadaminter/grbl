@@ -128,6 +128,7 @@ uint8_t system_execute_line(char *line)
   switch( line[char_counter] ) {
     case 0 : report_grbl_help(); break;
     case 'J' : // Jogging
+    case 'Q' : // Jogging with pulses
       // Execute only if in IDLE or JOG states.
       if (sys.state != STATE_IDLE && sys.state != STATE_JOG) { return(STATUS_IDLE_ERROR); }
       if(line[2] != '=') { return(STATUS_INVALID_STATEMENT); }
